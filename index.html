@@ -232,8 +232,8 @@
     const CONFIG = {
         building: {
             icon: '🏗️', label: '建築届', title: '🏗️ 新規建築届を受理', color: 3447003,
-            fields: [
-                { label: '申請者名(MCID)', name: '申請者', type: 'text', required: true },
+            fields: [{ label: '━━━━━━━━━━━━━━━━━━\n下記の内容で申請を受理いたしました。\n━━━━━━━━━━━━━━━━━━'}
+                { label: '申請者名', name: '申請者', type: 'text', required: true },
                 { label: '建築予定地(座標)', name: '場所', type: 'text', required: true },
                 { label: '建築物の種類', name: '種類', type: 'text', placeholder: '住宅、公共施設など' },
                 { label: '詳細・備考', name: '詳細', type: 'textarea' }
@@ -241,28 +241,29 @@
         },
         shop: {
             icon: '💰', label: '店舗開設', title: '💰 店舗開設の届出', color: 15844367,
-            fields: [
-                { label: '店主名(MCID)', name: '店主', type: 'text', required: true },
+        
+            fields: [{ label: '━━━━━━━━━━━━━━━━━━\n下記の内容で申請を受理いたしました。\n━━━━━━━━━━━━━━━━━━'}
+                { label: '申請者名', name: '申請者', type: 'text', required: true },
                 { label: '店舗名称', name: '店名', type: 'text', required: true },
                 { label: '主な商品', name: '商品', type: 'text' },
-                { label: '予定地', name: '場所', type: 'text' }
+                { label: '予定地（座標など）', name: '場所', type: 'text' }
             ]
         },
         pioneer: {
             icon: '🌲', label: '開拓届', title: '🌲 未開拓地開発報告', color: 3066993,
-            fields: [
-                { label: '責任者(MCID)', name: '責任者', type: 'text', required: true },
+            fields: [{ label: '━━━━━━━━━━━━━━━━━━\n下記の内容で申請を受理いたしました。\n━━━━━━━━━━━━━━━━━━'}
+                { label: '申請者', name: '申請者', type: 'text', required: true },
                 { label: '対象エリア', name: 'エリア', type: 'text', required: true },
                 { label: '開拓目的', name: '目的', type: 'textarea' }
             ]
         },
         disclosure: {
             icon: '📂', label: '情報開示', title: '📂 情報開示請求', color: 3899382,
-            fields: [
-                { label: '請求者(MCID)', name: '請求者', type: 'text', required: true },
+            fields: [{ label: '━━━━━━━━━━━━━━━━━━\n下記の内容で申請を受理いたしました。\n━━━━━━━━━━━━━━━━━━'}
+                { label: '申請者', name: '請求者', type: 'text', required: true },
                 { label: '対象情報', name: '情報名', type: 'text', required: true },
                 { label: '請求理由', name: '理由', type: 'textarea', required: true },
-                { label: '希望開示方法', name: '方法', type: 'select', options: ['Discord DM', 'ゲーム内看板', 'Web掲載'] }
+                { label: '希望開示方法', name: '方法', type: 'select', options: ['Discord', 'DM'] }
             ]
         }
     };

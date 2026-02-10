@@ -58,23 +58,23 @@
     const CONFIG = {
         building: { 
             icon: '🏗️', label: '建築届', title: '建築届を受理', color: 3447003, 
-            warning: "⚠️ 現時点では建築許可は出されていません。許可が出るまでは建築を開始しないでください。",
-            fields: [{ label: '申請者', name: '申請者', required: true }, { label: '場所', name: '場所', required: true }, { label: '詳細', name: '詳細', type: 'textarea' }] 
+            warning: "⚠️ ※本通知は「届出の受理」を知らせるものであり、「許可」を意味するものではありません。許可が降りる前に作業を開始した場合、差し戻しや撤去対象となる場合があります。",
+            fields: [{ label: '申請者', name: '申請者', required: true }, { label: '場所（座標など）', name: '場所', required: true }, { label: '詳細（使用用途など）', name: '詳細', type: 'textarea' }] 
         },
         shop: { 
             icon: '💰', label: '店舗開設', title: '店舗開設届を受理', color: 15844367, 
-            warning: "⚠️ まだ営業許可は下りていません。政府の承認があるまで開店作業や販売は控えてください。",
-            fields: [{ label: '申請者', name: '申請者', required: true }, { label: '店名', name: '店名', required: true }, { label: '商品', name: '商品' }] 
+            warning: "⚠️ ※本通知は「届出の受理」を知らせるものであり、「許可」を意味するものではありません。許可が降りる前に作業を開始した場合、差し戻しや撤去対象となる場合があります。",
+            fields: [{ label: '申請者', name: '申請者', required: true },{ label: '店名', name: '店名', required: true },  { label: '場所（座標など）', name: '場所', required: true },{ label: '備考（販売形式など）', name: '備考' }] 
         },
         pioneer: { 
             icon: '🌲', label: '開拓届', title: '開拓届を受理', color: 3066993, 
-            warning: "⚠️ 開拓許可はまだ下りていません。環境保護の観点から、承認前の整地等は行わないでください。",
+            warning: "⚠️ ※本通知は「届出の受理」を知らせるものであり、「許可」を意味するものではありません。許可が降りる前に作業を開始した場合、差し戻しや撤去対象となる場合があります。",
             fields: [{ label: '申請者', name: '申請者', required: true }, { label: 'エリア', name: 'エリア', required: true }, { label: '目的', name: '目的', type: 'textarea' }] 
         },
         disclosure: { 
             icon: '📂', label: '情報開示', title: '情報開示請求を受理', color: 3899382, 
             warning: "⚠️ 現在審査中です。開示の可否が決定するまでしばらくお待ちください。",
-            fields: [{ label: '申請者', name: '申請者', required: true }, { label: '情報名', name: '情報名', required: true }, { label: '理由', name: '理由', type: 'textarea', required: true }] 
+            fields: [{ label: '申請者', name: '申請者', required: true }, { label: '請求内容', name: '請求内容', required: true }, { label: '理由', name: '理由', type: 'textarea', required: true }] 
         }
     };
 
@@ -113,9 +113,8 @@
         });
 
         // Discord送信データの構築
-        const payload = {
-            content: `📢 **新しい${config.label}が提出されました**`,
-            embeds: [{
+        const payload = 
+                embeds: [{
                 title: `${config.icon} ${config.title}`,
                 color: config.color,
                 // 指定された区切り線とメッセージ

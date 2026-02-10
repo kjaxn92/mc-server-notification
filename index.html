@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政府統合申請ポータル</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+        :root { --primary: #0f172a; --bg: #f1f5f9; --card-bg: #ffffff; --text: #1e293b; --accent: #3b82f6; }
+        body { font-family: 'Noto Sans JP', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 900px; margin: 20px; background: var(--card-bg); border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: var(--primary); color: white; padding: 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.1em; }
+        .content { padding: 30px; min-height: 500px; }
+        .grid-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+        .menu-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 25px 15px; text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .menu-card:hover { border-color: var(--accent); background: #eff6ff; transform: translateY(-5px); }
+        .menu-card .icon { font-size: 2.5rem; }
+        .menu-card span { font-weight: 700; color: var(--primary); }
+        .form-view { display: none; }
+        .back-btn { color: var(--accent); font-weight: bold; cursor: pointer; margin-bottom: 20px; border: none; background: none; font-size: 1rem; }
+        .form-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        .submit-btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+        #status-msg { display: none; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: bold; font-size: 0.9rem; white-space: pre-wrap; }
+        .success { background: #dcfce7; color: #166534; }
+        .error { background: #fee2e2; color: #991b1b; }
+        footer { background: #f8fafc; padding: 20px; text-align: center; font-size: 0.8rem; color: #94a3b8; border-top: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header"><h1>政府統合申請ポータル</h1></div>
+    <div class="content">
+        <div id="status-msg"></div>
+        <div id="menu-view" class="grid-menu">
+            <div class="menu-card" onclick="openForm('building')"><div class="icon">🏗️</div><span>建築届</span></div>
+            <div class="menu-card" onclick="openForm('shop')"><div class="icon">💰</div><span>店舗開設</span></div>
+            <div class="menu-card" onclick="openForm('pioneer')"><div class="icon">🌲</div><span>開拓届</span></div>
+            <div class="menu-card" onclick="openForm('disclosure')"><div class="icon">📂</div><span>情報開示</span></div>
+        </div>
+        <div id="form-view" class="form-view">
+            <button class="back-btn" onclick="showMenu()">← 戻る</button>
+            <div id="form-container"></div>
+        </div>
+    </div>
+    <footer>&copy; Minecraft Server Government</footer>
+</div>
+
+<script>
+    // Webhook URL
+    const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1470806458789789779/qYPxUhCU47XVPYXEreQB0iMovFFAXnKNlJuG0Hi3tQwTATtkV6QM51LQKKzwBYkyJuGS';
+
+    // フォームと通知の設定
+    const CONFIG = {
+        building: { 
+            icon: '🏗️', label: '建築届', title: '建築届を受理', color: 3447003, 
+            warning: "⚠️ 現時点では建築許可は出されていません。許可が出るまでは建築を開始しないでください。",
+            fields: [{ label: '申請者', name: '申請者', required: true }, { label: '場所', name: '場所', required: true }, { label: '詳細', name: '詳細', type: 'textarea' }] 
+        },
+        shop: { 
+            icon: '💰', label: '店舗開設', title: '店舗開設届を受理', color: 15844367, 
+            warning: "⚠️ まだ営業許可は下りていません。政府の承認があるまで開店作業や販売は控えてください。",
+            fields: [{ label: '申請者', name: '申請者', required: true }, { label: '店名', name: '店名', required: true }, { label: '商品', name: '商品' }] 
+        },
+        pioneer: { 
+            icon: '🌲', label: '開拓届', title: '開拓届を受理', color: 3066993, 
+            warning: "⚠️ 開拓許可はまだ下りていません。環境保護の観点から、承認前の整地等は行わないでください。",
+            fields: [{ label: '申請者', name: '申請者', required: true }, { label: 'エリア', name: 'エリア', required: true }, { label: '目的', name: '目的', type: 'textarea' }] 
+        },
+        disclosure: { 
+            icon: '📂', label: '情報開示', title: '情報開示請求を受理', color: 3899382, 
+            warning: "⚠️ 現在審査中です。開示の可否が決定するまでしばらくお待ちください。",
+            fields: [{ label: '申請者', name: '申請者', required: true }, { label: '情報名', name: '情報名', required: true }, { label: '理由', name: '理由', type: 'textarea', required: true }] 
+        }
+    };
+
+    function showMenu() { document.getElementById('form-view').style.display = 'none'; document.getElementById('menu-view').style.display = 'grid'; document.getElementById('status-msg').style.display = 'none'; }
+
+    function openForm(type) {
+        const data = CONFIG[type];
+        const container = document.getElementById('form-container');
+        document.getElementById('menu-view').style.display = 'none';
+        document.getElementById('form-view').style.display = 'block';
+        let html = `<div class="form-title">${data.icon} ${data.label}</div><form onsubmit="handleSubmit(event, '${type}')">`;
+        data.fields.forEach(f => {
+            html += `<div class="form-group"><label>${f.label}</label>`;
+            if (f.type === 'textarea') html += `<textarea name="${f.name}" ${f.required ? 'required' : ''}></textarea>`;
+            else html += `<input type="text" name="${f.name}" ${f.required ? 'required' : ''}>`;
+            html += `</div>`;
+        });
+        html += `<button type="submit" class="submit-btn">申請を送信する</button></form>`;
+        container.innerHTML = html;
+    }
+
+    async function handleSubmit(event, type) {
+        event.preventDefault();
+        const form = event.target;
+        const config = CONFIG[type];
+        const formData = new FormData(form);
+        const btn = form.querySelector('.submit-btn');
+        const statusBox = document.getElementById('status-msg');
+
+        btn.disabled = true;
+        btn.textContent = "送信中...";
+
+        const fields = [];
+        formData.forEach((value, key) => {
+            fields.push({ name: `${key}`, value: value || "なし", inline: false });
+        });
+
+        // Discord送信データの構築
+        const payload = {
+            content: `📢 **新しい${config.label}が提出されました**`,
+            embeds: [{
+                title: `${config.icon} ${config.title}`,
+                color: config.color,
+                // 指定された区切り線とメッセージ
+                description: "━━━━━━━━━━━━━━━━━\n下記の内容で申請を受理いたしました。\n━━━━━━━━━━━━━━━━━",
+                fields: [
+                    ...fields,
+                    // 最後に届出の種類に応じた警告メッセージを挿入
+                    { name: "──────────────────", value: `**${config.warning}**`, inline: false }
+                ],
+                footer: { text: "サーバー政府申請管理システム" },
+                timestamp: new Date().toISOString()
+            }]
+        };
+
+        try {
+            const res = await fetch(DISCORD_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                statusBox.textContent = "✅ 正常に受理されました。\n運営からの通知をお待ちください。";
+                statusBox.className = "success";
+                statusBox.style.display = "block";
+                form.reset();
+            } else { throw new Error(); }
+        } catch (e) {
+            statusBox.textContent = "❌ 送信に失敗しました。";
+            statusBox.className = "error";
+            statusBox.style.display = "block";
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "申請を送信する";
+        }
+    }
+</script>
+</body>
+</html>
+
